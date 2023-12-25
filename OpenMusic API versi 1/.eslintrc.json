@@ -9,5 +9,12 @@
         "ecmaVersion": "latest"
     },
     "rules": {
+        // "no-console": "off",
+        "no-underscore-dangle": "off",
+        "camelcase": "off",
+        "object-curly-newline": "off",
+        "max-len": "off",
+        "no-else-return": "off",
+        "comma-dangle": "off",
     }
 }
