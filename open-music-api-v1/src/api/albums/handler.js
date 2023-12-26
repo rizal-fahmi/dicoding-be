@@ -1,43 +1,60 @@
+const ClientError = require('../../exceptions/ClientError');
+const {
+  ClientErrorResponse,
+  ServerErrorResponse,
+} = require('../../utils/errorResponse');
+
 class AlbumHandler {
   constructor(service, validator) {
     this._service = service;
     this._validator = validator;
 
     this.postAlbumHandler = this.postAlbumHandler.bind(this);
+    this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
   }
 
   async postAlbumHandler(request, h) {
     try {
       this._validator.validateAlbum(request.payload);
       const { name, year } = request.payload;
-      const resultService = await this._service.addAlbum({
+      const albumId = await this._service.addAlbum({
         name,
         year,
       });
       return h
         .response({
           status: 'success',
-          message: 'Album berhasil ditambahkan',
+          message: 'album successfully added.',
           data: {
-            resultService,
+            albumId,
           },
         })
         .code(201);
     } catch (error) {
-      if (error.statusCode === 400) {
-        return h
-          .response({
-            status: 'fail',
-            message: error.message,
-          })
-          .code(404);
+      if (error instanceof ClientError) {
+        return ClientErrorResponse(h, error.message);
       }
+      return ServerErrorResponse(h);
+    }
+  }
+
+  async getAlbumByIdHandler(request, h) {
+    try {
+      const { id } = request.params;
+      const album = await this._service.getAlbumById(id);
       return h
         .response({
-          status: 'error',
-          message: 'Maaf, terjadi kegagalan pada server kami',
+          status: 'success',
+          data: {
+            album,
+          },
         })
-        .code(500);
+        .code(200);
+    } catch (error) {
+      if (error instanceof ClientError) {
+        return ClientErrorResponse(h, error.message);
+      }
+      return ServerErrorResponse(h);
     }
   }
 }
