@@ -10,6 +10,7 @@ class AlbumHandler {
     this._validator = validator;
 
     this.postAlbumHandler = this.postAlbumHandler.bind(this);
+    this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
     this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
   }
 
@@ -30,6 +31,23 @@ class AlbumHandler {
           },
         })
         .code(201);
+    } catch (error) {
+      if (error instanceof ClientError) {
+        return ClientErrorResponse(h, error.message);
+      }
+      return ServerErrorResponse(h);
+    }
+  }
+
+  async getAlbumsHandler(h) {
+    try {
+      const albums = await this._service.getAlbums();
+      return {
+        status: 'success',
+        data: {
+          albums,
+        },
+      };
     } catch (error) {
       if (error instanceof ClientError) {
         return ClientErrorResponse(h, error.message);
