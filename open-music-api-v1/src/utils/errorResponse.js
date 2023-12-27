@@ -8,13 +8,13 @@ const ServerErrorResponse = (h) => {
   return h.response(response).code(statusCode);
 };
 
-const ClientErrorResponse = (h, error) => {
-  const response = h.response({
+const ClientErrorResponse = (h, message) => {
+  const statusCode = 400;
+  const response = {
     status: 'fail',
-    message: error.message,
-  });
-  response.code(error.statusCode);
-  return response;
+    message,
+  };
+  return h.response(response).code(statusCode);
 };
 
 module.exports = { ServerErrorResponse, ClientErrorResponse };

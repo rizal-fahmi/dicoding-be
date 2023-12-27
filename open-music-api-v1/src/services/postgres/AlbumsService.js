@@ -66,6 +66,17 @@ class AlbumService {
       throw new NotFoundError('failed to update the album. Id not found.');
     }
   }
+
+  async deleteAlbum(id) {
+    const query = {
+      text: 'DELETE FROM albums WHERE id = $1 RETURNING id;',
+      values: [id],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rows.length) {
+      throw new NotFoundError('Failed to delete the album. Id not found.');
+    }
+  }
 }
 
 module.exports = AlbumService;

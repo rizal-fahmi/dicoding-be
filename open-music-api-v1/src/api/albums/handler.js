@@ -13,6 +13,7 @@ class AlbumHandler {
     this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
     this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
     this.putAlbumHandler = this.putAlbumHandler.bind(this);
+    this.deleteAlbumHandler = this.deleteAlbumHandler.bind(this);
   }
 
   async postAlbumHandler(request, h) {
@@ -85,6 +86,22 @@ class AlbumHandler {
       return {
         status: 'success',
         message: 'Album successfully updated.',
+      };
+    } catch (error) {
+      if (error instanceof ClientError) {
+        return ClientErrorResponse(h, error.message);
+      }
+      return ServerErrorResponse(h);
+    }
+  }
+
+  async deleteAlbumHandler(request, h) {
+    try {
+      const { id } = request.params;
+      await this._service.deleteAlbum(id);
+      return {
+        status: 'success',
+        message: 'Album successfully deleted.',
       };
     } catch (error) {
       if (error instanceof ClientError) {
