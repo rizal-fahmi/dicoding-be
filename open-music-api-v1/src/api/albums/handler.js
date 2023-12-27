@@ -35,7 +35,7 @@ class AlbumHandler {
         .code(201);
     } catch (error) {
       if (error instanceof ClientError) {
-        return ClientErrorResponse(h, error.message);
+        return ClientErrorResponse(h, error.message, error.statusCode);
       }
       return ServerErrorResponse(h);
     }
@@ -52,7 +52,7 @@ class AlbumHandler {
       };
     } catch (error) {
       if (error instanceof ClientError) {
-        return ClientErrorResponse(h, error.message);
+        return ClientErrorResponse(h, error.message, error.statusCode);
       }
       return ServerErrorResponse(h);
     }
@@ -72,7 +72,7 @@ class AlbumHandler {
         .code(200);
     } catch (error) {
       if (error instanceof ClientError) {
-        return ClientErrorResponse(h, error.message);
+        return ClientErrorResponse(h, error.message, error.statusCode);
       }
       return ServerErrorResponse(h);
     }
@@ -89,7 +89,7 @@ class AlbumHandler {
       };
     } catch (error) {
       if (error instanceof ClientError) {
-        return ClientErrorResponse(h, error.message);
+        return ClientErrorResponse(h, error.message, error.statusCode);
       }
       return ServerErrorResponse(h);
     }
@@ -105,7 +105,7 @@ class AlbumHandler {
       };
     } catch (error) {
       if (error instanceof ClientError) {
-        return ClientErrorResponse(h, error.message);
+        return ClientErrorResponse(h, error.message, error.statusCode);
       }
       return ServerErrorResponse(h);
     }

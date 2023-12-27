@@ -29,7 +29,7 @@ class SongService {
       queryOptions += ' WHERE title ILIKE $1 AND performer ILIKE $2';
       values.push(`%${title}%`, `%${performer}%`);
     } else if (title || performer) {
-      queryOptions += ' WHERE title ILIKE $1 OR performer ILIKE $2';
+      queryOptions += ' WHERE title ILIKE $1 OR performer ILIKE $1';
       values.push(`%${title || performer}%`);
     }
     const query = {
@@ -52,7 +52,7 @@ class SongService {
     return songMapToDBModel(result.rows[0]);
   }
 
-  async editSongById(id, { title, year, performer, genre, duration, albumId }) {
+  async editSong(id, { title, year, performer, genre, duration, albumId }) {
     const query = {
       text: 'UPDATE songs SET title = $1, year = $2, performer = $3, genre = $4, duration = $5, album_id = $6 WHERE id = $7 RETURNING id',
       values: [title, year, performer, genre, duration, albumId, id],
@@ -63,7 +63,7 @@ class SongService {
     }
   }
 
-  async deleteSongById(id) {
+  async deleteSong(id) {
     const query = {
       text: 'DELETE FROM songs WHERE id = $1 RETURNING id',
       values: [id],
