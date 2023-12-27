@@ -12,6 +12,7 @@ class AlbumHandler {
     this.postAlbumHandler = this.postAlbumHandler.bind(this);
     this.getAlbumsHandler = this.getAlbumsHandler.bind(this);
     this.getAlbumByIdHandler = this.getAlbumByIdHandler.bind(this);
+    this.putAlbumHandler = this.putAlbumHandler.bind(this);
   }
 
   async postAlbumHandler(request, h) {
@@ -68,6 +69,23 @@ class AlbumHandler {
           },
         })
         .code(200);
+    } catch (error) {
+      if (error instanceof ClientError) {
+        return ClientErrorResponse(h, error.message);
+      }
+      return ServerErrorResponse(h);
+    }
+  }
+
+  async putAlbumHandler(request, h) {
+    try {
+      this._validator.validateAlbum(request.payload);
+      const { id } = request.params;
+      await this._service.editAlbum(id, request.payload);
+      return {
+        status: 'success',
+        message: 'Album successfully updated.',
+      };
     } catch (error) {
       if (error instanceof ClientError) {
         return ClientErrorResponse(h, error.message);
