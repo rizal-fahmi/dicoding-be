@@ -5,4 +5,14 @@ const albumMapToDBModel = (album, songs) => ({
   songs,
 });
 
-module.exports = { albumMapToDBModel };
+const songMapToDBModel = (data) => ({
+  id: data.id,
+  title: data.title,
+  year: data.year,
+  performer: data.performer,
+  genre: data.genre,
+  duration: data.duration,
+  albumId: data.album_id,
+});
+
+module.exports = { albumMapToDBModel, songMapToDBModel };

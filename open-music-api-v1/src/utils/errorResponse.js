@@ -8,8 +8,10 @@ const ServerErrorResponse = (h) => {
   return h.response(response).code(statusCode);
 };
 
-const ClientErrorResponse = (h, message) => {
-  const statusCode = 400;
+const ClientErrorResponse = (h, message, statusCode) => {
+  if(!statusCode){
+    statusCode = 400;
+  }
   const response = {
     status: 'fail',
     message,
