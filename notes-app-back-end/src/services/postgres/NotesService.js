@@ -18,13 +18,10 @@ class NotesService {
       text: 'INSERT INTO notes VALUES($1, $2, $3, $4, $5, $6) RETURNING id',
       values: [id, title, body, tags, createdAt, updatedAt],
     };
-
     const result = await this._pool.query(query);
-
     if (!result.rows[0].id) {
       throw new InvariantError('Catatan gagal ditambahkan');
     }
-
     return result.rows[0].id;
   }
 
@@ -39,11 +36,9 @@ class NotesService {
       values: [id],
     };
     const result = await this._pool.query(query);
-
     if (!result.rows.length) {
       throw new NotFoundError('Catatan tidak ditemukan');
     }
-
     return result.rows.map(mapDBToModel)[0];
   }
 
@@ -53,9 +48,7 @@ class NotesService {
       text: 'UPDATE notes SET title = $1, body = $2, tags = $3, updated_at = $4 WHERE id = $5 RETURNING id',
       values: [title, body, tags, updatedAt, id],
     };
-
     const result = await this._pool.query(query);
-
     if (!result.rows.length) {
       throw new NotFoundError('Gagal memperbarui catatan. Id tidak ditemukan');
     }
@@ -66,9 +59,7 @@ class NotesService {
       text: 'DELETE FROM notes WHERE id = $1 RETURNING id',
       values: [id],
     };
-
     const result = await this._pool.query(query);
-
     if (!result.rows.length) {
       throw new NotFoundError('Catatan gagal dihapus. Id tidak ditemukan');
     }
