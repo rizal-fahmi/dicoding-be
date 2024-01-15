@@ -16,6 +16,7 @@ class NotesHandler {
     try {
       this._validator.validateNotePayload(request.payload);
       const { title = 'untitled', body, tags } = request.payload;
+      // mengambil id dari user yang sedang login dari request.auth.credentials di server.js yang berfungsi sebagai owner
       const { id: credentialId } = request.auth.credentials;
       const noteId = await this._service.addNote({
         title,
@@ -64,10 +65,10 @@ class NotesHandler {
 
   async getNoteByIdHandler(request, h) {
     try {
-      const { id } = request.params;
+      const { id: noteId } = request.params;
       const { id: credentialId } = request.auth.credentials;
-      await this._service.verifyNoteAccess(id, credentialId);
-      const note = await this._service.getNoteById(id);
+      await this._service.verifyNoteAccess(noteId, credentialId);
+      const note = await this._service.getNoteById(noteId);
       return {
         status: 'success',
         data: {

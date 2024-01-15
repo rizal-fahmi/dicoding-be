@@ -78,17 +78,17 @@ class NotesService {
     }
   }
 
-  async verifyNoteOwner(id, owner) {
+  async verifyNoteOwner(noteId, ownerId) {
     const query = {
       text: 'SELECT * FROM notes WHERE id = $1',
-      values: [id],
+      values: [noteId],
     };
     const result = await this._pool.query(query);
     if (!result.rows.length) {
       throw new NotFoundError('Catatan tidak ditemukan');
     }
     const note = result.rows[0];
-    if (note.owner !== owner) {
+    if (note.owner !== ownerId) {
       throw new AuthorizationError('Anda tidak berhak mengakses resource ini');
     }
   }
