@@ -42,7 +42,6 @@ class UsersHandler {
         message: 'Maaf, terjadi kegagalan pada server kami.',
       });
       response.code(500);
-      console.error(error);
       return response;
     }
   }
@@ -71,7 +70,6 @@ class UsersHandler {
         message: 'Maaf, terjadi kegagalan pada server kami.',
       });
       response.code(500);
-      console.error(error);
       return response;
     }
   }
@@ -80,7 +78,6 @@ class UsersHandler {
     try {
       const { username = '' } = request.query;
       const users = await this._service.getUsersByUsername(username);
-      console.log(users);
       return {
         status: 'success',
         data: {
@@ -101,7 +98,6 @@ class UsersHandler {
         message: 'Maaf, terjadi kegagalan pada server kami.',
       });
       response.code(500);
-      console.error(error);
       return response;
     }
   }
