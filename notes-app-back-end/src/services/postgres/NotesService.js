@@ -6,9 +6,10 @@ const NotFoundError = require('../../exceptions/NotFoundError');
 const AuthorizationError = require('../../exceptions/AuthorizationError');
 
 class NotesService {
-  constructor(collaborationService) {
+  constructor(collaborationService, cacheService) { // *cache
     this._pool = new Pool();
     this._collaborationService = collaborationService;
+    this._cacheService = cacheService; // *cache
   }
 
   async addNote({ title, body, tags, owner }) {
@@ -24,20 +25,34 @@ class NotesService {
     if (!result.rows[0].id) {
       throw new InvariantError('Catatan gagal ditambahkan');
     }
+    await this._cacheService.delete(`notes:${owner}`);
     return result.rows[0].id;
   }
 
   async getNotes(owner) {
-    // Pada kueri di bawah, kita menggunakan LEFT JOIN karena tabel notes berada di posisi paling kiri (dipanggil pertama kali). Kueri di atas akan mengembalikan seluruh nilai notes yang dimiliki oleh dan dikolaborasikan dengan owner. Data notes yang dihasilkan berpotensi duplikasi, sehingga di akhir kueri, kita GROUP nilainya agar menghilangkan duplikasi yang dilihat berdasarkan notes.id.
-    const query = {
-      text: `SELECT notes.* FROM notes
-      LEFT JOIN collaborations ON collaborations.note_id = notes.id
-      WHERE notes.owner = $1 OR collaborations.user_id = $1
-      GROUP BY notes.id`,
-      values: [owner],
-    };
-    const result = await this._pool.query(query);
-    return result.rows.map(mapDBToModel);
+    try { // *cache
+      // mendapatkan catatan dari cache
+      const result = await this._cacheService.get(`notes:${owner}`); // *cache
+      return JSON.parse(result); // *cache
+    } catch (error) { // *cache
+      // bila gagal, diteruskan dengan mendapatkan catatan dari database
+      // Pada kueri di bawah, kita menggunakan LEFT JOIN karena tabel notes berada di posisi paling kiri (dipanggil pertama kali). Kueri di atas akan mengembalikan seluruh nilai notes yang dimiliki oleh dan dikolaborasikan dengan owner. Data notes yang dihasilkan berpotensi duplikasi, sehingga di akhir kueri, kita GROUP nilainya agar menghilangkan duplikasi yang dilihat berdasarkan notes.id.
+      const query = {
+        text: `SELECT notes.* FROM notes
+        LEFT JOIN collaborations ON collaborations.note_id = notes.id
+        WHERE notes.owner = $1 OR collaborations.user_id = $1
+        GROUP BY notes.id`,
+        values: [owner],
+      };
+      const result = await this._pool.query(query);
+      const mappedResult = result.rows.map(mapDBToModel); // *cache
+      // catatan akan disimpan pada cache sebelum fungsi getNotes dikembalikan
+      await this._cacheService.set(
+        `notes:${owner}`,
+        JSON.stringify(mappedResult),
+      );
+      return mappedResult;
+    }
   }
 
   async getNoteById(id) {
@@ -65,6 +80,8 @@ class NotesService {
     if (!result.rows.length) {
       throw new NotFoundError('Gagal memperbarui catatan. Id tidak ditemukan');
     }
+    const { owner } = result.rows[0];
+    await this._cacheService.delete(`notes:${owner}`);
   }
 
   async deleteNoteById(id) {
@@ -76,6 +93,8 @@ class NotesService {
     if (!result.rows.length) {
       throw new NotFoundError('Catatan gagal dihapus. Id tidak ditemukan');
     }
+    const { owner } = result.rows[0];
+    await this._cacheService.delete(`notes:${owner}`);
   }
 
   async verifyNoteOwner(noteId, ownerId) {
